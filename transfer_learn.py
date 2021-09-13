@@ -1,27 +1,11 @@
 #%%
 import tensorflow as tf
 import numpy as np
-import pandas as pd
 import tensorflow as tf
 import random
 import os
 import shutil
-
-## GPU setting
-os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]= "0"
-
-# For Efficiency
-gpus = tf.config.experimental.list_physical_devices("GPU")
-if gpus:
-    try:
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
-        logical_gpus = tf.config.experimental.list_logical_devices("GPU")
-        print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
-    except RuntimeError as e:
-        print(e)
-
+import PIL
 
 ## fix the seed
 SEED = 2020
@@ -29,8 +13,8 @@ random.seed(SEED)
 np.random.seed(SEED)
 tf.random.set_seed(SEED)
 EPOCHS=100
-BATCH_SIZE = 16* len(gpus)
-
+BATCH_SIZE = 16
+save_dir = 'model'
 def data_split(data_dir):
     model =data_dir
     image=data_dir
@@ -67,7 +51,7 @@ if not os.path.exists(train_dir):
     data_split(data_dir)
 
 if not os.path.exists(save_dir):
-    os.makedirs('model')
+    os.makedirs(save_dir)
 
 
 #%%
@@ -114,5 +98,3 @@ model.fit(
             callbacks = callbacks_list,
             max_queue_size=64, workers=32
                                             )
-
-# %%
