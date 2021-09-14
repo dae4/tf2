@@ -7,52 +7,31 @@ import os
 import shutil
 import PIL
 
+## gpu setting
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+gpus = tf.config.experimental.list_physical_devices("GPU")
+if gpus:
+    try:
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+        logical_gpus = tf.config.experimental.list_logical_devices("GPU")
+        print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+    except RuntimeError as e:
+        print(e)
+
 ## fix the seed
 SEED = 2020
 random.seed(SEED)
 np.random.seed(SEED)
 tf.random.set_seed(SEED)
 EPOCHS=100
-BATCH_SIZE = 16
-save_dir = 'model'
-def data_split(data_dir):
-    model =data_dir
-    image=data_dir
-
-    for cls in os.listdir(image):
-        os.makedirs(str(model) +'/train/' + cls)
-        os.makedirs(str(model) +'/val/' + cls)
-        # Creating partitions of the data after shuffeling
-        src = os.path.join(image, cls) # Folder to copy images from
-        print(src)
-        allFileNames = os.listdir(src)
-        np.random.shuffle(allFileNames)
-        train_FileNames, val_FileNames = np.split(np.array(allFileNames),[int(len(allFileNames)* (1 - 0.2))])
-        train_FileNames = [str(src)+'/'+ name for name in train_FileNames.tolist()]
-        val_FileNames = [str(src)+'/' + name for name in val_FileNames.tolist()]
-
-        print('Total images: ', len(allFileNames))
-        print('Training: ', len(train_FileNames))
-        print('Validation: ', len(val_FileNames))
-
-        # Copy-pasting images
-        for name in train_FileNames:
-            shutil.copy(name, str(model) +'/train/' + cls)
-
-        for name in val_FileNames:
-            shutil.copy(name, str(model) +'/val/' + cls)
-
+BATCH_SIZE = 16 * len(gpus)
 
 data_dir = 'data'
+save_dir = 'model'
 train_dir=os.path.join(data_dir,"train")
 val_dir =os.path.join(data_dir,"val")
-
-if not os.path.exists(train_dir):
-    data_split(data_dir)
-
-if not os.path.exists(save_dir):
-    os.makedirs(save_dir)
-
 
 #%%
 
