@@ -31,6 +31,7 @@ data_dir = 'data/test'
 save_dir = "model/"
 
 BATCH_SIZE = 8
+
 IMG_HEIGHT = 224
 IMG_WIDTH = 224
 
@@ -38,7 +39,7 @@ IMG_WIDTH = 224
 test_image_generator = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1./255)
 test_data_gen = test_image_generator.flow_from_directory(directory=data_dir,target_size=(224,224),batch_size=BATCH_SIZE,class_mode='categorical')
 
-model = tf.keras.models.load_model(save_dir+f"35_weights.h5")
+model = tf.keras.models.load_model(save_dir+f"01_weights.h5")
 model.trainable=False
 opt = tf.keras.optimizers.Adam(learning_rate=0.001) 
 model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['acc'])
@@ -50,6 +51,7 @@ print('test loss, test acc:', results)
 bb = {v:k for k,v in test_data_gen.class_indices.items()}
 
 rand_idx = np.random.choice(range(0,len(test_data_gen)), 8)
+
 
 fig, m_axs = plt.subplots(4, 2, figsize = (4,12))
 for (idx, c_ax) in zip(rand_idx, m_axs.flatten()):
